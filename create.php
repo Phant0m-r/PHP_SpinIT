@@ -30,32 +30,6 @@
             color: white;
         }
 
-        .task {
-            background: #eee;
-            width: 500px;
-            margin: 8px auto 8px;
-            padding: 16px;
-        }
-
-        .task .actions {
-            background: #d9d9d9;
-            text-align: right;
-        }
-
-        .task .actions {
-            margin: 0 0 8px 0;
-            padding: 4px;
-        }
-
-        .task .actions li {
-            display: inline-block;
-            margin: 0 4px;
-        }
-
-        .task .actions li a {
-            font-size: 12px;
-        }
-
         .message {
             width: 500px;
             padding: 16px;
@@ -103,7 +77,7 @@
 </head>
 
 <body>
-    <!-- Блок для var_dump -->
+    <!-- Блок для var_dump() -->
     <!-- <pre></pre> -->
 
     <nav>
@@ -111,35 +85,30 @@
         <li><a href="/create.php">Добавить</a></li>
     </nav>
 
-    <form method="get" action="">
+    <!-- Блок для сообщения -->
+    <!-- <div class="message">
+        Сообщение
+    </div> -->
+
+    <h1>Добавить задачу</h1>
+
+    <form method="POST" action="">
         <label>Описание задачи</label>
-        <input type="text" name="description" value="">
+        <input type="text" name="description" placeholder="Что вы хотите сделать?">
+        <!-- Блок для отображения ошибки -->
+        <!-- <div class="validate-error">Текст ошибки</div> -->
+        <br>
         <label>Приоритет</label>
         <select name="priority">
-            <option value="all">Все</option>
             <option value="default">Обычный</option>
             <option value="high">Высший</option>
             <option value="low">Низкий</option>
         </select>
         <br>
         <div class="actions">
-            <button type="submit">Искать</button>
+            <button type="submit">Отправить</button>
         </div>
     </form>
-
-    <!-- Для отображения списка задач -->
-    <!-- <h1>Задачи</h1>
-    <div class="task">
-        <ul class="actions">
-            <li><a href="">Редактировать</a></li>
-            <li><a href="">Удалить</a></li>
-        </ul>
-        Описание: текст описания <br>
-        Приоритет: тип приоритета <br>
-    </div> -->
-
-    <!-- Если задач не найдено -->
-    <!-- <h1>Задач не найдено</h1> -->
 </body>
 
 </html>
