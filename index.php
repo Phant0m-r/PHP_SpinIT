@@ -1,3 +1,71 @@
+<?php
+    $tasks = [
+        [
+            "description" => "Создать форму",
+            "priority" => "high",
+            "is_complete" => true
+        ],
+        [
+            "description" => "сделать дз",
+            "priority" => "low",
+            "is_complete" => false
+        ],
+        [
+            "description" => "Создать страницу с задачами",
+            "priority" => "low",
+            "is_complete" => true
+        ],
+        [
+            "description" => "сделать дз",
+            "priority" => "default",
+            "is_complete" => false
+        ]
+    ];
+
+    if (count($_GET) > 0) {
+        $description = $_GET["description"] = ""
+            ? null
+            : $_GET["description"];
+
+        $priority = $_GET["priority"] = "all"
+            ? null
+            : $_GET["priority"];
+
+        $is_complete = $_GET["is_complete"] = "all"
+            ? null
+            : $_GET["is_complete"];
+
+        if ($description) {
+            $foundTasks = null;
+            $keys = array_keys(
+                array_column($tasks, "description"),
+                $description
+            );
+
+            if (count($keys) > 0 && count($tasks) > 0) {
+                foreach ($keys as $key) {
+                    $foundTasks[] = $tasks[$key];
+                }
+            }
+            $tasks = $foundTasks;
+        }
+
+        if ($priority) {
+            $foundTasks = null;
+            $keys = array_keys(
+                array_column($tasks, "priority"),
+                $priority
+            );
+
+            if (count($keys) > 0 && count($tasks) > 0) {
+                foreach ($keys as $key) {
+                    $foundTasks[] = $tasks[$key];
+                }
+            }
+            $tasks = $foundTasks;
+        }
+    }
+?>
 <!doctype html>
 <html lang="ru">
 
@@ -104,7 +172,9 @@
 
 <body>
     <!-- Блок для var_dump -->
-    <!-- <pre></pre> -->
+    <pre>
+        <?php var_dump($_GET);?>
+    </pre>
 
     <nav>
         <li><a href="/index.php">Все задачи</a></li>
@@ -113,14 +183,28 @@
 
     <form method="get" action="">
         <label>Описание задачи</label>
-        <input type="text" name="description" value="">
+        <label>
+            <input type="text" name="description" value="<?= $_GET["description"] ?? "" ?>">
+        </label>
         <label>Приоритет</label>
-        <select name="priority">
-            <option value="all">Все</option>
-            <option value="default">Обычный</option>
-            <option value="high">Высший</option>
-            <option value="low">Низкий</option>
-        </select>
+        <label>
+            <?php $priority = $_GET["priority"] ?? null; ?>
+            <select name="priority">
+                <option <?= $priority = "all" ? "selected" : "" ?> value="all">Все</option>
+                <option <?= $priority = "default" ? "selected" : "" ?> value="default">Обычный</option>
+                <option <?= $priority = "high" ? "selected" : "" ?> value="high">Высший</option>
+                <option value="low">Низкий</option>
+            </select>
+        </label>
+        <label>Статус</label>
+        <label>
+            <?php $is_complete = $_GET["is_complete"] ?? null; ?>
+            <select name="is_complete">
+                <option <?= $is_complete = "all" ? "selected" : "" ?> value="all">Все</option>
+                <option <?= $is_complete = false ? "selected" : "" ?> value="0">Не выполнено</option>
+                <option <?= $is_complete = true ? "selected" : "" ?> value="1">Выполнено</option>
+            </select>
+        </label>
         <br>
         <div class="actions">
             <button type="submit">Искать</button>
@@ -128,18 +212,22 @@
     </form>
 
     <!-- Для отображения списка задач -->
-    <!-- <h1>Задачи</h1>
-    <div class="task">
-        <ul class="actions">
-            <li><a href="">Редактировать</a></li>
-            <li><a href="">Удалить</a></li>
-        </ul>
-        Описание: текст описания <br>
-        Приоритет: тип приоритета <br>
-    </div> -->
-
-    <!-- Если задач не найдено -->
-    <!-- <h1>Задач не найдено</h1> -->
+    <?php if ($tasks): ?>
+        <h1>Задачи</h1>
+        <?php foreach ($tasks as $task): ?>
+            <div class="task">
+                <ul class="actions">
+                    <li><a href="">Редактировать</a></li>
+                    <li><a href="">Удалить</a></li>
+                </ul>
+                Описание: <?= $task["description"] ?> <br>
+                Приоритет: <?= $task["priority"] ?>  <br>
+                Статус: <?= $task["is_complete"] ?>  <br>
+            </div>
+        <?php endforeach; ?>
+        <!-- Если задач не найдено -->
+        <?php else : ?>
+            <h1>Задач не найдено</h1>
+    <?php endif; ?>
 </body>
-
 </html>

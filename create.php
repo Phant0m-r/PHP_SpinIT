@@ -1,3 +1,22 @@
+<?php
+    $errors = null;
+    $message = null;
+
+    if (count($_POST) > 0) {
+        foreach ($_POST as $key => $value) {
+            if ($value = "") {
+                $errors[$key] = "Должно быть заполнено";
+            }
+        }
+
+        if ($errors) {
+            $message = "Не все поля заполнены";
+        } else {
+            $message = "Данные формы сохранены";
+        }
+    }
+?>
+
 <!doctype html>
 <html lang="ru">
 
@@ -78,7 +97,9 @@
 
 <body>
     <!-- Блок для var_dump() -->
-    <!-- <pre></pre> -->
+    <pre>
+        <?php var_dump($_POST);?>
+    </pre>
 
     <nav>
         <li><a href="/index.php">Все задачи</a></li>
@@ -86,24 +107,32 @@
     </nav>
 
     <!-- Блок для сообщения -->
-    <!-- <div class="message">
-        Сообщение
-    </div> -->
+    <?php if ($message): ?>
+    <div class="message">
+        <?= $message?>
+    </div>
+    <?php endif; ?>
 
     <h1>Добавить задачу</h1>
 
     <form method="POST" action="">
         <label>Описание задачи</label>
-        <input type="text" name="description" placeholder="Что вы хотите сделать?">
+
+            <input type="text" name="description" placeholder="Что вы хотите сделать?">
+
         <!-- Блок для отображения ошибки -->
-        <!-- <div class="validate-error">Текст ошибки</div> -->
+        <?php if (isset($errors["description"])): ?>
+         <div class="validate-error"> <?= $errors["description"] ?> </div>
+        <?php endif; ?>
         <br>
         <label>Приоритет</label>
-        <select name="priority">
-            <option value="default">Обычный</option>
-            <option value="high">Высший</option>
-            <option value="low">Низкий</option>
-        </select>
+
+            <select name="priority">
+                <option value="default">Обычный</option>
+                <option value="high">Высший</option>
+                <option value="low">Низкий</option>
+
+            </select>
         <br>
         <div class="actions">
             <button type="submit">Отправить</button>
