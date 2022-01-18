@@ -23,15 +23,15 @@
     ];
 
     if (count($_GET) > 0) {
-        $description = $_GET["description"] = ""
+        $description = $_GET["description"] == ""
             ? null
             : $_GET["description"];
 
-        $priority = $_GET["priority"] = "all"
+        $priority = $_GET["priority"] == "all"
             ? null
             : $_GET["priority"];
 
-        $is_complete = $_GET["is_complete"] = "all"
+        $is_complete = $_GET["is_complete"] == "all"
             ? null
             : $_GET["is_complete"];
 
@@ -55,6 +55,23 @@
             $keys = array_keys(
                 array_column($tasks, "priority"),
                 $priority
+            );
+
+            if (count($keys) > 0 && count($tasks) > 0) {
+                foreach ($keys as $key) {
+                    $foundTasks[] = $tasks[$key];
+                }
+            }
+            $tasks = $foundTasks;
+        }
+
+        if (isset($is_complete)) {
+            $foundTasks = null;
+            $bool_complete = false;
+            if ($is_complete == "1") $bool_complete = true;
+            $keys = array_keys(
+                array_column($tasks, "is_complete"),
+                $bool_complete
             );
 
             if (count($keys) > 0 && count($tasks) > 0) {
@@ -190,19 +207,19 @@
         <label>
             <?php $priority = $_GET["priority"] ?? null; ?>
             <select name="priority">
-                <option <?= $priority = "all" ? "selected" : "" ?> value="all">Все</option>
-                <option <?= $priority = "default" ? "selected" : "" ?> value="default">Обычный</option>
-                <option <?= $priority = "high" ? "selected" : "" ?> value="high">Высший</option>
-                <option value="low">Низкий</option>
+                <option <?= $priority == "all" ? "selected" : "" ?> value="all">Все</option>
+                <option <?= $priority == "default" ? "selected" : "" ?> value="default">Обычный</option>
+                <option <?= $priority == "high" ? "selected" : "" ?> value="high">Высший</option>
+                <option <?= $priority == "low" ? "selected" : "" ?> value="low">Низкий</option>
             </select>
         </label>
         <label>Статус</label>
         <label>
             <?php $is_complete = $_GET["is_complete"] ?? null; ?>
             <select name="is_complete">
-                <option <?= $is_complete = "all" ? "selected" : "" ?> value="all">Все</option>
-                <option <?= $is_complete = false ? "selected" : "" ?> value="0">Не выполнено</option>
-                <option <?= $is_complete = true ? "selected" : "" ?> value="1">Выполнено</option>
+                <option <?= $is_complete == "all" ? "selected" : "" ?> value="all">Все</option>
+                <option <?= $is_complete == "0" ? "selected" : "" ?> value="0">Не выполнено</option>
+                <option <?= $is_complete == "1" ? "selected" : "" ?> value="1">Выполнено</option>
             </select>
         </label>
         <br>
@@ -222,7 +239,7 @@
                 </ul>
                 Описание: <?= $task["description"] ?> <br>
                 Приоритет: <?= $task["priority"] ?>  <br>
-                Статус: <?= $task["is_complete"] ?>  <br>
+                Статус: <?= $task["is_complete"] ? "Выполнено" : "Не выполнено"?>  <br>
             </div>
         <?php endforeach; ?>
         <!-- Если задач не найдено -->

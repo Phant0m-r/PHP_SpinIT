@@ -4,7 +4,7 @@
 
     if (count($_POST) > 0) {
         foreach ($_POST as $key => $value) {
-            if ($value = "") {
+            if ($value == "") {
                 $errors[$key] = "Должно быть заполнено";
             }
         }
