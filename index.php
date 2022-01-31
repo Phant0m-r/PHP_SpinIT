@@ -35,7 +35,7 @@
             ? null
             : $_GET["is_complete"];
 
-        if ($description) {
+        if ($description && $tasks) {
             $foundTasks = null;
             $keys = array_keys(
                 array_column($tasks, "description"),
@@ -50,7 +50,7 @@
             $tasks = $foundTasks;
         }
 
-        if ($priority) {
+        if ($priority && $tasks) {
             $foundTasks = null;
             $keys = array_keys(
                 array_column($tasks, "priority"),
@@ -65,7 +65,7 @@
             $tasks = $foundTasks;
         }
 
-        if (isset($is_complete)) {
+        if (isset($is_complete) && $tasks) {
             $foundTasks = null;
             $bool_complete = false;
             if ($is_complete == "1") $bool_complete = true;
