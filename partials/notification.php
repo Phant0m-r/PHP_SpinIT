@@ -1,6 +1,6 @@
 <?php
 
-    function notification( $message )
+    function notification( string $message = null )
     {
         if ($message): ?>
         <div class="message">
