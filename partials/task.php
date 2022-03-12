@@ -5,8 +5,8 @@
     ?>
         <div class="task">
             <ul class="actions">
-                <li><a href="">Редактировать</a></li>
-                <li><a href="">Удалить</a></li>
+                <li><a href="form.php?id=<?= $task["id"] ?>">Редактировать</a></li>
+                <li><a href="../delete.php?id=<?= $task["id"] ?>">Удалить</a></li>
             </ul>
             Описание: <?= $task["description"] ?> <br>
             Приоритет: <?= $task["priority"] ?>  <br>

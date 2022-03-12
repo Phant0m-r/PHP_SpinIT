@@ -1,14 +1,27 @@
 <?php
     require_once "requests/form.php";
 
-    $errors = [];
     $message = null;
+    $parameters = parse($_POST);
+    $errors = validate($parameters);
+
+    $id = (int)$_GET["id"] ?? null;
     $task = null;
 
-    if (count($_POST) > 0) {
-        $errors = post_parse($errors, $_POST);
-        $message = errors_parse($errors);
+    if ($parameters) {
+        if ($parameters["id"]) {
+            $action = update($parameters, $parameters["id"]);
+        } else {
+            $action = create($parameters);
+        }
+        $message = $action["message"];
+        $errors = $action["errors"];
     }
+
+    if ($id) {
+        $task = show($id);
+    }
+
     require_once "partials/head.php";
     require_once "partials/myVardump.php";
     require_once "partials/menu.php";

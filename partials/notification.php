@@ -4,7 +4,7 @@
     {
         if ($message): ?>
         <div class="message">
-            <?= $message?>
+            <?= $message; ?>
         </div>
     <?php
         endif;

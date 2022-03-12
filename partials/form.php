@@ -1,9 +1,12 @@
 <?php
-function form_create (array $errors = null, array $task = null) {
+function form_create (array $errors = null, array $task = null)
+{
+    $id = $task["id"] ?? null;
     $description = $task["description"] ?? null;
     $priority = $task["priority"] ?? null;
 ?>
     <form method="POST" action="">
+        <input type="hidden" name="id" value="<?= $id ?>">
         <label>Описание задачи</label>
         <input type="text" name="description" value="<?=$description?>" placeholder="Что вы хотите сделать?">
         <!-- Блок для отображения ошибки -->

@@ -1,53 +1,32 @@
 <?php
 require_once "requests/filter.php";
 
-    $tasks = [
-        [
-            "description" => "Создать форму",
-            "priority" => "high",
-            "is_complete" => true
-        ],
-        [
-            "description" => "сделать дз",
-            "priority" => "low",
-            "is_complete" => false
-        ],
-        [
-            "description" => "Создать страницу с задачами",
-            "priority" => "low",
-            "is_complete" => true
-        ],
-        [
-            "description" => "сделать дз",
-            "priority" => "default",
-            "is_complete" => false
-        ]
-    ];
+    $tasks = null;
 
-    if (count($_GET) > 0) {
-        $parameters = parse($_GET);
+    $message = $_GET["message"] ?? null;
 
-        foreach ($parameters as $parameter => $value) {
-            if (!is_null($value)&&$tasks) {
-                $tasks = search($parameter, $value, $tasks);
-            }
-        }
-    }
+    $parameters = parse($_GET);
+
+    $tasks = loadTasks($parameters);
 
     require_once "partials/head.php";
     require_once "partials/myVardump.php";
     require_once "partials/menu.php";
+    require_once "partials/task.php";
+    require_once "partials/notification.php";
+
+    notification($message);
 ?>
 
     <form method="get" action="">
         <label>Описание задачи</label>
         <label>
-            <input type="text" name="description" value="<?= $_GET["description"] ?? "" ?>">
+            <input type="text" name="filter[description]" value="<?= $parameters["filter"]["description"] ?? "" ?>">
         </label>
         <label>Приоритет</label>
         <label>
-            <?php $priority = $_GET["priority"] ?? null; ?>
-            <select name="priority">
+            <?php $priority = $parameters["filter"]["priority"] ?? null; ?>
+            <select name="filter[priority]">
                 <option <?= $priority == "all" ? "selected" : "" ?> value="all">Все</option>
                 <option <?= $priority == "default" ? "selected" : "" ?> value="default">Обычный</option>
                 <option <?= $priority == "high" ? "selected" : "" ?> value="high">Высший</option>
@@ -56,12 +35,23 @@ require_once "requests/filter.php";
         </label>
         <label>Статус</label>
         <label>
-            <?php $is_complete = $_GET["is_complete"] ?? null; ?>
-            <select name="is_complete">
+            <?php $is_complete = $parameters["filter"]["is_complete"] ?? null; ?>
+            <select name="filter[is_complete]">
                 <option <?= $is_complete == "all" ? "selected" : "" ?> value="all">Все</option>
                 <option <?= $is_complete == "0" ? "selected" : "" ?> value="0">Не выполнено</option>
                 <option <?= $is_complete == "1" ? "selected" : "" ?> value="1">Выполнено</option>
             </select>
+        </label>
+        <label>Сортировка по:</label>
+        <select name="sort[column]">
+            <option value="none">Все</option>
+            <option value="description">Описанию</option>
+            <option value="priority">Приоритету</option>
+            <option value="is_complete">Выполнению</option>
+        </select>
+        <label>
+            убыванию?
+            <input type="checkbox" name="sort[direction]" value="desc">
         </label>
         <br>
         <div class="actions">
@@ -73,7 +63,6 @@ require_once "requests/filter.php";
     <?php if ($tasks): ?>
         <h1>Задачи</h1>
         <?php
-            require_once "partials/task.php";
             foreach ($tasks as $task)
             {
                 task_block($task);

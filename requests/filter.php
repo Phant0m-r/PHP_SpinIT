@@ -1,39 +1,162 @@
 <?php
 
+function filterParam(string $field, $value): ?string
+{
+    switch ($field) {
+        case "priority":
+            $value = $value == "all"
+                ? null
+                : $value;
+            break;
+        case "is_complete":
+            if (
+                $value == "1"
+                || $value == "0"
+            ) {
+                $value = (boolean)$value;
+            } else {
+                $value = null;
+            }
+            break;
+        default:
+            $value = $value == ""
+                ? null
+                : $value;
+    }
+    return $value;
+}
+
 function parse(array $query = []): ?array
 {
-    foreach ($query as $key => $value) {
-        switch ($key) {
-            case "priority":
-                $value = $_GET[$key] == "all"
-                    ? null
-                    : $_GET[$key];
+    foreach ($query as $group => $params) {
+        switch ($group) {
+            case "filter":
+                foreach ($params as $field => $value) {
+                    $value = filterParam($field, $value);
 
-                break;
-            case "is_complete":
-                if (
-                    $_GET[$key] == "1"
-                    || $_GET[$key] == "0"
-                ) {
-                    $value = (boolean)$_GET[$key];
-                } else {
-                    $value = null;
+                    if ($value != null) {
+                        $parameters[$group][$field] = $value;
+                    }
                 }
-
                 break;
             default:
-                $value = $_GET[$key] ==""
-                    ? null
-                    : $_GET[$key];
-
+                $parameters[$group] = $params;
+                break;
         }
-        $parameters[$key] = $value;
     }
-
     return $parameters;
 }
 
+function loadTasks(array $parameters = null): ?array
+{
+    $tasks = null;
+    $bindings = null;
+    $types = null;
 
+    $connection = mysqli_connect(
+        "localhost",
+        "adil",
+        "password",
+        "todolist"
+    );
+
+    $query = "SELECT * FROM tasks ";
+
+    if ($parameters) {
+        $bindings = [];
+        foreach ($parameters as $group =>$fields) {
+            switch ($group) {
+                case "filter":
+                    if (count($fields) > 0) {
+                        $query .= "WHERE ";
+
+                        $clauses = [];
+
+                        foreach ($fields as $key => $value) {
+                            $clauses[] = "$key = ?";
+                            $types .= "s";
+                            $bindings[] = $value;
+                        }
+
+                        $query .= implode(" AND ", $clauses);
+                    }
+                    break;
+            }
+        }
+    }
+    $statement = mysqli_prepare($connection, $query);
+
+    if ($bindings) {
+        mysqli_stmt_bind_param($statement, $types, ...$bindings);
+    }
+
+    mysqli_stmt_execute($statement);
+
+    $rows = mysqli_stmt_get_result($statement);
+
+    while ($row = mysqli_fetch_array($rows)) {
+        $tasks[] = $row;
+    }
+
+    return $tasks;
+}
+
+/*
+function loadTasks(array $parameters = null): ?array
+{
+    $tasks = null;
+    $bindings = null;
+    $types = null;
+
+    $connection = mysqli_connect(
+        "localhost",
+        "adil",
+        "password",
+        "todolist"
+    );
+
+    $query = "SELECT * FROM tasks ";
+
+    if ($parameters) {
+        $bindings = [];
+        foreach ($parameters as $group => $fields) {
+            switch ($group) {
+                case "filter":
+                    if (count($fields) > 0) {
+                        $query .= "WHERE ";
+
+                        $clauses = [];
+
+                        foreach ($fields as $key => $value) {
+                            $clauses[] = "$key = ?";
+                            $types .= "s";
+                            $bindings[] = $value;
+                        }
+
+                        $query .= implode(" AND ", $clauses);
+                    }
+                    break;
+            }
+        }
+    }
+
+    $statement = mysqli_prepare($connection, $query);
+
+    if ($bindings) {
+        mysqli_stmt_bind_param($statement, $types, ...$bindings);
+    }
+
+    mysqli_stmt_execute($statement);
+
+    $rows = mysqli_stmt_get_result($statement);
+
+    while ($row = mysqli_fetch_array($rows)) {
+        $tasks[] = $row;
+    }
+
+    return $tasks;
+}
+*/
 function search($parameter, $value, array $tasks = null): ?array
 {
     $foundTasks = null;
