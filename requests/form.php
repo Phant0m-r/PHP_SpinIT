@@ -104,16 +104,13 @@ function show(int $id): array
 
     mysqli_stmt_execute($statement);
     $result = mysqli_stmt_get_result($statement);
-    $task = mysqli_fetch_array($result);
+    //$task = mysqli_fetch_array($result);
+
+    $task = mysqli_fetch_array($result, MYSQLI_ASSOC);
+
     mysqli_close($connection);
 
-    $normalTask["id"] = $task["id"];
-    $normalTask["description"] = $task["description"];
-    $normalTask["is_complete"] = $task["is_complete"];
-    $normalTask["priority"] = $task["priority"];
-
-    //return $task;
-    return $normalTask;
+    return $task;
 }
 
 function update(array $parameters, int $id): array
