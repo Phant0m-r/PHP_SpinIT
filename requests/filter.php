@@ -3,21 +3,31 @@
 function filterParam(string $field, $value): ?string
 {
     switch ($field) {
+
         case "priority":
             $value = $value == "all"
                 ? null
                 : $value;
             break;
+
         case "is_complete":
             if (
                 $value == "1"
                 || $value == "0"
             ) {
-                $value = (boolean)$value;
+                //$value = (boolean)$value;
+                $value = (int)$value;
             } else {
                 $value = null;
             }
             break;
+/*
+        case "column":
+            $value = $value == "none"
+                ? null
+                : $value;
+            break;
+*/
         default:
             $value = $value == ""
                 ? null
@@ -30,6 +40,7 @@ function parse(array $query = []): ?array
 {
     foreach ($query as $group => $params) {
         switch ($group) {
+            case "sort":
             case "filter":
                 foreach ($params as $field => $value) {
                     $value = filterParam($field, $value);
@@ -39,6 +50,7 @@ function parse(array $query = []): ?array
                     }
                 }
                 break;
+
             default:
                 $parameters[$group] = $params;
                 break;
@@ -79,6 +91,25 @@ function loadTasks(array $parameters = null): ?array
                         }
 
                         $query .= implode(" AND ", $clauses);
+                    }
+                    break;
+
+                case "sort":
+                    foreach ($fields as $key => $value) {
+                        switch ($key) {
+
+                            case "column":
+                                if ($value == "none") {
+                                    $query .= " ORDER BY id";
+                                } else {
+                                    $query .= " ORDER BY $value";
+                                }
+                                break;
+
+                            case "direction":
+                                $query .= " DESC";
+                                break;
+                        }
                     }
                     break;
             }

@@ -43,15 +43,16 @@ require_once "requests/filter.php";
             </select>
         </label>
         <label>Сортировка по:</label>
+        <?php $column = $parameters["sort"]["column"] ?? null; ?>
         <select name="sort[column]">
-            <option value="none">Все</option>
-            <option value="description">Описанию</option>
-            <option value="priority">Приоритету</option>
-            <option value="is_complete">Выполнению</option>
+            <option <?=$column == "none" ? "selected" : "" ?> value="none">Времени</option>
+            <option <?=$column == "description" ? "selected" : "" ?> value="description">Описанию</option>
+            <option <?=$column == "priority" ? "selected" : "" ?> value="priority">Приоритету</option>
+            <option <?=$column == "is_complete" ? "selected" : "" ?> value="is_complete">Статусу</option>
         </select>
         <label>
             убыванию?
-            <input type="checkbox" name="sort[direction]" value="desc">
+            <input type="checkbox" name="sort[direction]" value="<?= $parameters["sort"]["direction"] ?? "desc" ?>">
         </label>
         <br>
         <div class="actions">

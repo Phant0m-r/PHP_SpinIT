@@ -107,7 +107,13 @@ function show(int $id): array
     $task = mysqli_fetch_array($result);
     mysqli_close($connection);
 
-    return $task;
+    $normalTask["id"] = $task["id"];
+    $normalTask["description"] = $task["description"];
+    $normalTask["is_complete"] = $task["is_complete"];
+    $normalTask["priority"] = $task["priority"];
+
+    //return $task;
+    return $normalTask;
 }
 
 function update(array $parameters, int $id): array
@@ -142,11 +148,14 @@ function update(array $parameters, int $id): array
             switch (gettype($value)) {
                 case "string":
                     $types .= "s";
-
                     break;
+
                 case "boolean":
                     $types .="b";
+                    break;
 
+                case "integer":
+                    $types .= "i";
                     break;
             }
 
