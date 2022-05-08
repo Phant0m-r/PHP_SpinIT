@@ -1,9 +1,9 @@
 <?php
-function form_create (array $errors = null, array $task = null)
+function viewForm (array $errors = null, Task $task = null)
 {
-    $id = $task["id"] ?? null;
-    $description = $task["description"] ?? null;
-    $priority = $task["priority"] ?? null;
+    $id = $task->id ?? null;
+    $description = $task->description ?? null;
+    $priority = $task->priority ?? null;
 ?>
     <form method="POST" action="">
         <input type="hidden" name="id" value="<?= $id ?>">

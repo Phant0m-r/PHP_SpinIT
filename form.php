@@ -1,25 +1,27 @@
 <?php
-    require_once "requests/form.php";
+
+require_once "classes/Request.php";
+require_once "classes/Task.php";
+require_once "requests/form.php";
 
     $message = null;
-    $parameters = parse($_POST);
-    $errors = validate($parameters);
+    $errors = null;
+    $request = new Request;
 
-    $id = (int)$_GET["id"] ?? null;
     $task = null;
 
-    if ($parameters) {
-        if ($parameters["id"]) {
-            $action = update($parameters, $parameters["id"]);
+    if ($request->request_type == "POST") {
+        if ($request->id) {
+            $action = update($request, $request->id);
         } else {
-            $action = create($parameters);
+            $action = create($request);
         }
         $message = $action["message"];
         $errors = $action["errors"];
     }
 
-    if ($id) {
-        $task = show($id);
+    if ($request->id) {
+        $task = show($request->id);
     }
 
     require_once "partials/head.php";
@@ -31,6 +33,6 @@
 ?>
     <h1>Добавить задачу</h1>
 <?php
-    form_create($errors, $task);
+    viewForm($errors, $task);
     require_once "partials/foot.php";
 ?>

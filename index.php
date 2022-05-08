@@ -1,31 +1,30 @@
 <?php
-require_once "requests/filter.php";
+require_once 'classes/Request.php';
+require_once "classes/Task.php";
+require_once "requests/form.php";
+require_once "partials/head.php";
+require_once "partials/myVardump.php";
+require_once "partials/menu.php";
+require_once "partials/task.php";
+require_once "partials/notification.php";
 
     $tasks = null;
 
-    $message = $_GET["message"] ?? null;
+    $request = new Request;
 
-    $parameters = parse($_GET);
+    $tasks = index($request);
 
-    $tasks = loadTasks($parameters);
-
-    require_once "partials/head.php";
-    require_once "partials/myVardump.php";
-    require_once "partials/menu.php";
-    require_once "partials/task.php";
-    require_once "partials/notification.php";
-
-    notification($message);
+    notification($request->message);
 ?>
 
     <form method="get" action="">
         <label>Описание задачи</label>
         <label>
-            <input type="text" name="filter[description]" value="<?= $parameters["filter"]["description"] ?? "" ?>">
+            <input type="text" name="filter[description]" value="<?= $request->filter["description"] ?? "" ?>">
         </label>
         <label>Приоритет</label>
         <label>
-            <?php $priority = $parameters["filter"]["priority"] ?? null; ?>
+            <?php $priority = $request->filter["priority"] ?? null; ?>
             <select name="filter[priority]">
                 <option <?= $priority == "all" ? "selected" : "" ?> value="all">Все</option>
                 <option <?= $priority == "default" ? "selected" : "" ?> value="default">Обычный</option>
@@ -35,7 +34,7 @@ require_once "requests/filter.php";
         </label>
         <label>Статус</label>
         <label>
-            <?php $is_complete = $parameters["filter"]["is_complete"] ?? null; ?>
+            <?php $is_complete = $request->filter["is_complete"] ?? null; ?>
             <select name="filter[is_complete]">
                 <option <?= $is_complete == "all" ? "selected" : "" ?> value="all">Все</option>
                 <option <?= $is_complete == "0" ? "selected" : "" ?> value="0">Не выполнено</option>
@@ -43,7 +42,7 @@ require_once "requests/filter.php";
             </select>
         </label>
         <label>Сортировка по:</label>
-        <?php $column = $parameters["sort"]["column"] ?? null; ?>
+        <?php $column = $request->sort["column"] ?? null; ?>
         <select name="sort[column]">
             <option <?=$column == "none" ? "selected" : "" ?> value="none">Времени</option>
             <option <?=$column == "description" ? "selected" : "" ?> value="description">Описанию</option>
@@ -52,7 +51,7 @@ require_once "requests/filter.php";
         </select>
         <label>
             убыванию?
-            <input type="checkbox" name="sort[direction]" value="<?= $parameters["sort"]["direction"] ?? "desc" ?>">
+            <input type="checkbox" name="sort[direction]" value="<?= $request->sort["direction"] ?? "desc"; ?>">
         </label>
         <br>
         <div class="actions">

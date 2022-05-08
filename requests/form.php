@@ -1,15 +1,4 @@
 <?php
-function  parse(array $query = [] ): ?array
-{
-    $parameters = null;
-    foreach ($query as $key => $value) {
-        switch ($key) {
-            default:
-                $parameters[$key] = $value == "" ? null : $value;
-        }
-    }
-    return $parameters;
-}
 
 function validate(array $parameters = null): ?array
 {
@@ -28,9 +17,9 @@ function validate(array $parameters = null): ?array
     return $errors;
 }
 
-function create(array $parameters): array
+function create(Request $request)
 {
-    $errors = validate($parameters);
+    $errors = validate($request->parameters);
 
     if ($errors) {
         $message = "Не все поля заполнены";
@@ -41,22 +30,7 @@ function create(array $parameters): array
         ];
     }
 
-    $connection = mysqli_connect(
-        "localhost",
-        "adil",
-        "password",
-        "todolist"
-    );
-    $query = mysqli_prepare(
-        $connection,
-        "INSERT INTO tasks (description, priority) VALUES (?, ?)"
-    );
-
-    mysqli_stmt_bind_param($query, "ss", $parameters["description"], $parameters["priority"]);
-
-    mysqli_stmt_execute($query);
-
-    mysqli_close($connection);
+    (new Task($request->parameters))->create();
 
     $message = "Данные формы сохранены";
 
@@ -68,54 +42,24 @@ function create(array $parameters): array
 
 function delete(int $id): string
 {
-    $connection = mysqli_connect(
-        "localhost",
-        "adil",
-        "password",
-        "todolist"
-    );
-    $statement = mysqli_prepare(
-        $connection,
-        "DELETE FROM tasks WHERE id = ?"
-    );
+    $task = new Task();
+    $task->id = $id;
 
-    mysqli_stmt_bind_param($statement, "i", $id);
-
-    mysqli_stmt_execute($statement);
-
-    mysqli_close($connection);
+    $task->delete();
 
     return "Запись удалена";
 }
 
-function show(int $id): array
+function show(int $id): Task
 {
-    $connection = mysqli_connect(
-        "localhost",
-        "adil",
-        "password",
-        "todolist"
-    );
-    $statement = mysqli_prepare(
-        $connection,
-        "SELECT * FROM tasks WHERE id = ?"
-    );
-    mysqli_stmt_bind_param($statement, "i", $id);
-
-    mysqli_stmt_execute($statement);
-    $result = mysqli_stmt_get_result($statement);
-    //$task = mysqli_fetch_array($result);
-
-    $task = mysqli_fetch_array($result, MYSQLI_ASSOC);
-
-    mysqli_close($connection);
+    $task = (new Task(["id" => $id]))->find();
 
     return $task;
 }
 
-function update(array $parameters, int $id): array
+function update(Request $request, int $id): array
 {
-    $errors = validate($parameters);
+    $errors = validate($request->parameters);
     $bindings = [];
     $types = "";
     if ($errors) {
@@ -126,8 +70,9 @@ function update(array $parameters, int $id): array
             "errors" => $errors
         ];
     }
+    (new Task(["id" => $id]))->update($request->parameters);
 
-    $connection = mysqli_connect(
+ /*   $connection = mysqli_connect(
         "localhost",
         "adil",
         "password",
@@ -174,11 +119,18 @@ function update(array $parameters, int $id): array
 
     mysqli_stmt_execute($statement);
     mysqli_close($connection);
-
+*/
     $message = "Данные обновлены";
 
     return [
         "message" => $message,
         "errors" => $errors
     ];
+}
+
+function index(Request $request): ?array
+{
+    return (new Task())->get(
+        $request->parameters
+    );
 }

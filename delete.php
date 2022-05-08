@@ -1,10 +1,12 @@
 <?php
+require_once "classes/Request.php";
+require_once "classes/Task.php";
 require_once "requests/form.php";
 
-$id = (int)$_GET["id"] ?? null;
+$request = new Request;
 
-if ($id) {
-    $message = delete($id);
+if ($request->id) {
+    $message = delete($request->id);
 } else {
     $message = "Не выбрана запись для удаления";
 }
