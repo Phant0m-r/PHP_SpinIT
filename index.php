@@ -1,7 +1,7 @@
 <?php
 require_once 'classes/Request.php';
 require_once "classes/Task.php";
-require_once "requests/form.php";
+require_once "classes/TaskController.php";
 require_once "partials/head.php";
 require_once "partials/myVardump.php";
 require_once "partials/menu.php";
@@ -12,7 +12,9 @@ require_once "partials/notification.php";
 
     $request = new Request;
 
-    $tasks = index($request);
+    $taskController = new TaskController($request);
+
+    $tasks = $taskController->index();
 
     notification($request->message);
 ?>

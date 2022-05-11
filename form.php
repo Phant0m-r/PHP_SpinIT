@@ -2,26 +2,28 @@
 
 require_once "classes/Request.php";
 require_once "classes/Task.php";
-require_once "requests/form.php";
+require_once "classes/TaskController.php";
 
     $message = null;
     $errors = null;
     $request = new Request;
 
+    $taskController = new TaskController($request);
+
     $task = null;
 
     if ($request->request_type == "POST") {
         if ($request->id) {
-            $action = update($request, $request->id);
+            $action = $taskController->update();
         } else {
-            $action = create($request);
+            $action = $taskController->create();
         }
         $message = $action["message"];
         $errors = $action["errors"];
     }
 
     if ($request->id) {
-        $task = show($request->id);
+        $task = $taskController->show();
     }
 
     require_once "partials/head.php";

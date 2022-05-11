@@ -32,33 +32,7 @@ class Request
 
         return $value;
     }
-/*
-    public function process(array $request)
-    {
-        $parameters = null;
 
-        foreach ($request as $key => $value) {
-            if (is_array($value)) {
-                foreach ($value as $input => $value) {
-                    $value = $this->cleanInput($value);
-
-                    if ($value != null) {
-                        $parameters[$key][$input] = $value;
-                    }
-                }
-
-            } else {
-                $value = $this->cleanInput($value);
-
-                if ($value != null) {
-                    $parameters[$key] = $value;
-                }
-            }
-        }
-
-        return $parameters;
-    }
-*/
     public function process(array $request)
     {
         $parameters = null;
@@ -72,16 +46,11 @@ class Request
                         $parameters[$key][$input] = $item;
                     }
                 }
-
             } else {
                 $value = $this->cleanInput($value);
-
-                //if ($value != null) {
-                    $parameters[$key] = $value;
-                //}
+                $parameters[$key] = $value;
             }
         }
-
         return $parameters;
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . "/../classes/NotFoundIDException.php";
+
 class Task
 {
     public ?array $attributes;
@@ -34,7 +36,7 @@ class Task
         $id = $this->attributes["id"] ?? null;
 
         if (!$id) {
-            throw new Exception("Отсутствует ID задачи");
+            throw new NotFoundIDException("Отсутствует ID задачи");
         }
 
         return $id;
