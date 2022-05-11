@@ -26,7 +26,7 @@ class TaskController
         return $errors;
     }
 
-    public function create()
+    public function create(): ?array
     {
         $request = $this->request;
 
@@ -41,12 +41,18 @@ class TaskController
             ];
         }
 
-        (new Task($request->parameters))->create();
-
+        try {
+            (new Task($request->parameters))->create();
+        } catch (Exception $e) {
+            return [
+                "message" => "Error",
+                "errors" => null
+            ];
+        }
         $message = "Данные формы сохранены";
 
         return [
-            "message => $message",
+            "message" => $message,
             "errors" => $errors
         ];
     }
@@ -58,8 +64,14 @@ class TaskController
         $task = new Task();
         $task->id = $id;
 
-        $task->delete();
-
+        try {
+            $task->delete();
+        } catch (Exception $e) {
+            return [
+                "message" => "Error",
+                "errors" => null
+            ];
+        }
         return "Запись удалена";
     }
 
@@ -67,7 +79,15 @@ class TaskController
     {
         $id = $this->request->id;
 
-        $task = (new Task(["id" => $id]))->find();
+        try {
+            $task = (new Task(["id" => $id]))->find();
+        }
+        catch (Exception $e) {
+            return [
+                "message" => "Error",
+                "errors" => null
+            ];
+        }
 
         return $task;
     }
