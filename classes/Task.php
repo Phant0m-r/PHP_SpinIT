@@ -21,14 +21,9 @@ class Task
         $this->attributes[$key] = $value;
     }
 
-    private function getConnection(): ?mysqli
+    private function getConnection(): DatabasePDO
     {
-        return mysqli_connect(
-            "localhost",
-            "adil",
-            "password",
-            "todolist"
-        );
+        return new DatabasePDO(__DIR__ . "/../database.ini");
     }
 
     private function getID(): int
@@ -50,144 +45,72 @@ class Task
             throw new Exception("Нет данных задачи");
         }
 
-        $sets = [];
-        $placeholders = [];
         $bindings = [];
-        $types = null;
 
         foreach ($attributes as $key => $value) {
-            if ($key != "id") {
-                $sets[] = $key;
-                $placeholders[] = "?";
-
-                switch (gettype($value)) {
-                    case "string":
-                        $types .= "s";
-                        break;
-
-                    case "boolean":
-                        $types .="b";
-                        break;
-
-                    case "integer":
-                        $types .= "i";
-                        break;
-                }
-
-                $bindings[] = $value;
-            }
+            $bindings[":$key"] = $value;
         }
 
-        $querySets = implode(", ", $sets);
-        $queryBindings = implode(", ", $placeholders);
+        $querySets = implode(", ", array_keys($attributes));
+        $queryBindings = implode(", ", array_keys($bindings));
 
         $connection = $this->getConnection();
 
-        $statement = mysqli_prepare(
-            $connection,
-            "INSERT INTO tasks ( $querySets ) VALUES ( $queryBindings )"
-        );
+        $statement = $connection->prepare("INSERT INTO tasks ($querySets) VALUES ($queryBindings)");
 
-        mysqli_stmt_bind_param($statement, $types, ...$bindings);
-
-        mysqli_stmt_execute($statement);
-
-        mysqli_close($connection);
+        $statement->execute($bindings);
 
         return $this;
     }
 
     public function update(array $attributes): self
     {
-        $id = $this->getID();
         $this->attributes = $attributes;
 
         $bindings = [];
-        $types = "";
 
         $query = "UPDATE tasks SET ";
 
-        $sets = [];
-
         foreach ($attributes as $key => $value) {
-            if ($key != "id") {
-                $sets[] = "$key = ?";
-
-                switch (gettype($value)) {
-                    case "string":
-                        $types .= "s";
-                        break;
-
-                    case "integer":
-                        $types .= "i";
-                        break;
-                }
-
-                $bindings[] = $value;
-            }
+            $sets[] = "$key = :$key";
+            $bindings[":$key"] = $value;
         }
         $query .= implode(", ", $sets);
 
-        $query .= " WHERE id = ?";
-
-        $types .= "i";
-        $bindings[] = $id;
+        $query .= " WHERE id = :id";
 
         $connection = $this->getConnection();
 
-        $statement = mysqli_prepare(
-            $connection,
-            $query
-        );
-        mysqli_stmt_bind_param($statement, $types, ...$bindings);
+        $statement = $connection->prepare($query);
 
-        mysqli_stmt_execute($statement);
-
-        mysqli_close($connection);
-
+        $statement->execute($bindings);
         return $this;
     }
 
     public function delete(): bool
     {
-        $id = $this->getID();
-
         $connection = $this->getConnection();
 
+        $statement = $connection->prepare("DELETE FROM tasks WHERE id = :id");
 
-        $statement = mysqli_prepare(
-            $connection,
-            "DELETE FROM tasks WHERE id = ?"
-        );
-
-        mysqli_stmt_bind_param($statement, "i", $id);
-
-        mysqli_stmt_execute($statement);
-
-        mysqli_close($connection);
+        $statement->execute([
+            ":id" => $this->getID()
+        ]);
 
         return true;
     }
 
     public function find(): self
     {
-        $id = $this->getID();
-
         $connection = $this->getConnection();
 
-        $statement = mysqli_prepare(
-            $connection,
-            "SELECT * FROM tasks WHERE id = ?"
-        );
-        mysqli_stmt_bind_param($statement, "i", $id);
+        $statement = $connection->prepare("SELECT * FROM tasks WHERE id = :id");
 
-        mysqli_stmt_execute($statement);
+        $statement->execute([
+            ":id" => $this->getID()
+        ]);
 
-        $result = mysqli_stmt_get_result($statement);
-
-        $attributes = mysqli_fetch_array($result, MYSQLI_ASSOC);
-
-        mysqli_close($connection);
+        $attributes = $statement->fetch(PDO::FETCH_ASSOC);
 
         $this->attributes = $attributes;
 
@@ -199,7 +122,7 @@ class Task
         $bindings = null;
         $query = "SELECT * FROM tasks ";
 
-        $types = "";
+        $tasks = null;
 
         if ($parameters) {
             foreach ($parameters as $group =>$fields) {
@@ -211,9 +134,8 @@ class Task
                             $clauses = [];
 
                             foreach ($fields as $key => $value) {
-                                $clauses[] = "$key = ?";
-                                $types .= "s";
-                                $bindings[] = $value;
+                                $clauses[] = "$key = :$key";
+                                $bindings[":$key"] = $value;
                             }
 
                             $query .= implode(" AND ", $clauses);
@@ -221,20 +143,11 @@ class Task
                         break;
 
                     case "sort":
-                        foreach ($fields as $key => $value) {
-                            switch ($key) {
+                        if (count($fields) > 0) {
+                            $query .= "ORDER BY ";
 
-                                case "column":
-                                    if ($value == "none") {
-                                        $query .= " ORDER BY id";
-                                    } else {
-                                        $query .= " ORDER BY $value";
-                                    }
-                                    break;
-
-                                case "direction":
-                                    $query .= " DESC";
-                                    break;
+                            foreach ($fields as $value) {
+                                $query .= "$value ";
                             }
                         }
                         break;
@@ -244,23 +157,14 @@ class Task
 
         $connection = $this->getConnection();
 
-        $statement = mysqli_prepare($connection, $query);
+        $statement = $connection->prepare($query);
+        $statement->execute($bindings);
 
-        if ($bindings) {
-            mysqli_stmt_bind_param($statement, $types, ...$bindings);
-        }
+        $rows = $statement->fetchAll(PDO::FETCH_ASSOC);
 
-        mysqli_stmt_execute($statement);
-
-        $rows = mysqli_stmt_get_result($statement);
-
-       $tasks = [];
-
-        while ($row = mysqli_fetch_array($rows, MYSQLI_ASSOC)) {
+        foreach ($rows as $row) {
             $tasks[] = new Task($row);
         }
-
-        mysqli_close($connection);
 
         return $tasks;
     }
