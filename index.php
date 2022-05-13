@@ -2,6 +2,7 @@
 require_once 'classes/Request.php';
 require_once "classes/Task.php";
 require_once "classes/TaskController.php";
+require_once "classes/DatabasePDO.php";
 require_once "partials/head.php";
 require_once "partials/myVardump.php";
 require_once "partials/menu.php";

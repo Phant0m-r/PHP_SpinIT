@@ -2,6 +2,7 @@
 require_once "classes/Request.php";
 require_once "classes/Task.php";
 require_once "classes/TaskController.php";
+require_once "classes/DatabasePDO.php";
 
 $request = new Request;
 

@@ -24,7 +24,7 @@ class Request
     {
         if ($value == "all" /*|| $value == "none" */|| $value == "") {
             return null;
-        }
+        } else if ($value == "none") return "id";
 
         if (is_bool($value)) {
             return $value;
@@ -48,7 +48,10 @@ class Request
                 }
             } else {
                 $value = $this->cleanInput($value);
-                $parameters[$key] = $value;
+
+                if ($value != null) {
+                    $parameters[$key] = $value;
+                }
             }
         }
         return $parameters;

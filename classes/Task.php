@@ -117,7 +117,7 @@ class Task
         return $this;
     }
 
-    public function get(array $parameters = null): array
+    public function get(array $parameters = null): ?array
     {
         $bindings = null;
         $query = "SELECT * FROM tasks ";
@@ -134,7 +134,7 @@ class Task
                             $clauses = [];
 
                             foreach ($fields as $key => $value) {
-                                $clauses[] = "$key = :$key";
+                                $clauses[] = "$key = :$key ";
                                 $bindings[":$key"] = $value;
                             }
 
