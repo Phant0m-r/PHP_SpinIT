@@ -1,0 +1,27 @@
+{
+    "name": "adil/spinit_php",
+    "description": "First Todo app",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Adil\\SpinitPhp\\": "src/"
+        },
+        "files": [
+            "resources/partials/menu.php",
+            "resources/partials/form.php",
+            "resources/partials/notification.php",
+            "resources/partials/task.php"
+        ]
+    },
+    "authors": [
+        {
+            "name": "Phant0m-r",
+            "email": "faizulin_adil@mail.ru"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "nesbot/carbon": "^2.58"
+    }
+}
